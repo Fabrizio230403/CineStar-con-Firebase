@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>firebase.html</title>
+</head>
+<body>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            addDoc,
+            updateDoc
+        } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC52mqFgPMjho5bjB3un4wKLyYqcsbRIXs",
+            authDomain: "cine-1a1af.firebaseapp.com",
+            projectId: "cine-1a1af",
+            storageBucket: "cine-1a1af.appspot.com",
+            messagingSenderId: "501057256699",
+            appId: "1:501057256699:web:e3ebc3d26dd1a5c80bc45e"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+      
+        const setPeliculas = async()=>{
+          const data = await fetch('https://oaemdl.es/cinestar_sweb_php/peliculas');
+          const peliculas = await data.json();
+          peliculas.forEach(pelicula =>{
+              addDoc(collection(db,'peliculas'),pelicula)
+          })
+        }
+      
+        const setCines = async()=>{
+          const data=await fetch('https://oaemdl.es/cinestar_sweb_php/cines')
+          const cines=await data.json()
+          cines.forEach(async cine=>{
+              const dataTarifas = await fetch(`https://oaemdl.es/cinestar_sweb_php/cines/${cine.id}/tarifas`)
+              cine.tarifas = await dataTarifas.json()
+              
+              const dataPeliculas = await fetch(`https://oaemdl.es/cinestar_sweb_php/cines/${cine.id}/peliculas`)
+              cine.peliculas = await dataPeliculas.json()
+              addDoc(collection(db, 'cines'),cine)
+          })
+        }
+        //setCines()
+        setPeliculas()
+    </script>
+    
+</body>
+</html>
